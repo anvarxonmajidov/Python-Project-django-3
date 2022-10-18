@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>{% block title %}{% endblock %}Saul Gadgets</title>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+		<link rel="stylesheet" href="{% static 'main.css'%}">	
+	</head>
+
+	<body>
+		<nav class="navbar is-dark" id="navbarapp">
+			<div class="navbar-brand">
+				<a class="navbar-item" href="{% url 'frontpage' %}">Saul Gadgets</a>
+
+				<a @click="toggleMenu()" role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="main-navbar">
+					<span aria-hidden="true"></span>
+					<span aria-hidden="true"></span>
+					<span aria-hidden="true"></span>
+				</a>
+			</div>
+
+			<div id="main-navbar" class="navbar-menu" :class="{ 'is-active':menuClass }">
+				<div class="navbar-start">
+					<div class="navbar-item">
+						<form action="{% url 'search' %}" method="get">
+							<div class="field has-addons">
+								<div class="control">
+									<input type="text" class="input" placeholder="Search..." name="query">
+								</div>
+								<div class="control">
+									<button class="button is-success">Search</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div class="navbar-end">
+					{% for category in menu_categories %}
+						<a href="{% url 'category_detail' category.slug%}" class="navbar-item">{{ category.title}}</a>
+					{% endfor %}
+					<div class="navbar-item">
+						<a href="{% url 'cart' %}" class="button is-primary">Cart(({numItems}))</a>
+					</div>
+
+					{% if request.user.is_authenticated%}
+						<div class="navbar-item">
+							<a href="{% url 'myaccount'%}" class="button is-light">My account</a>
+						</div>
+					{% else %}
+						<div class="navbar-item">
+							<div class="buttons">
+								<a href="{% url 'signup' %}" class="button is-primary"><strong>Sign up</strong></a>
+								<a href="{% url 'login' %}" class="button is-light">Log in</a>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</nav>
+
+		<section class="section">
+			{% block content %}
+            {% endblock %}
+		</section>
+
+		<footer class="footer">
+			<div class="columns">
+				<div class="column is-4">
+					<h2 class="subtitle">Saul Gadgets</h2>
+				</div>
+				<div class="column is-8">
+					<a href="{% url 'contact'%}" class="navbar-item">Contact</a>
+					<a href="{% url 'about'%}" class="navbar-item">About</a>
+				</div>
+				
+			</div>
+		</footer>
+	<script src="{% static 'vue.js' %}"></script>
+	<script src="{% static 'vuex.js' %}"></script>
+
+	<script>
+		var store=new Vuex.Store({
+			state:{
+				numItems:{{cart.get_total_length}},
+				totalCost:{{cart.get_total_cost}},
+			},
+			mutations:{
+				increment(state,quantity){
+					state.numItems+=quantity;
+				},
+				changeTotalCost(state,newCost){
+					state.totalCost+=newCost
+				}
+			}
+		});
+		var navbarapp=new Vue({
+			el:"#navbarapp",
+        	delimiters:['({','})'],
+			store:store,
+			data(){
+				return {
+					menuClass:false
+				}
+			},
+			computed:{
+				numItems:function(){
+					return store.state.numItems;
+				}
+			},
+			methods:{
+				toggleMenu(){
+					console.log('toggleMenu');
+
+					this.menuClass=! this.menuClass;
+				}
+			}
+		});
+	</script>
+	{% block scripts %}
+	{% endblock %}
+
+	<!-- bulma cdn-start -->
+	
+	<!-- <script src="https://bulma.io/vendor/clipboard-1.7.1.min.js"></script>
+	<script src="https://bulma.io/vendor/js.cookie-2.1.4.min.js"></script>
+	<script src="https://bulma.io/vendor/cupcakes-3.1.0.min.js"></script>
+	<script src="https://bulma.io/lib/main.js?v=202204041328"></script>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-82634666-2"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+	
+	  gtag('config', 'UA-82634666-2');
+	</script>
+	<script src="https://bulma.io/lib/docs.js?v=202204041328"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+	<script type="text/javascript"> docsearch({
+	  apiKey: 'cb93c14bebd90678e789c946d95ea94d',
+	  indexName: 'bulma',
+	  inputSelector: '#algoliaSearch',
+	  debug: false // Set debug to true if you want to inspect the dropdown
+	});
+	</script> -->
+	<!-- bulma cdn-end -->
+</body>
+</html>
